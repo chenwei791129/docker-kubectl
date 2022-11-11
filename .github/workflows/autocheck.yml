@@ -1,0 +1,30 @@
+name: Auto check and create tag when kubectl new version released
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "*/10 * * * *"
+
+jobs:     
+  check-and-tag:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check new version
+        id: newversion
+        run: echo "NEW_VERSION=$(curl -s https://api.github.com/repos/kubernetes/kubernetes/releases/latest | jq -r '.tag_name')" >> $GITHUB_OUTPUT
+      - name: Print new version
+        run: echo new version is ${{ steps.newversion.outputs.NEW_VERSION }}
+      - name: Check version not exist
+        uses: mukunku/tag-exists-action@v1.1.0
+        id: checkexist
+        env:
+          #GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PUSH_PAT }}
+        with: 
+          tag: ${{ steps.newversion.outputs.NEW_VERSION }}
+      - uses: actions/checkout@v3
+      - name: Add tag when new version released
+        if: ${{ steps.checkexist.outputs.exists != 'true' }}
+        uses: rickstaa/action-create-tag@v1
+        with:
+          tag: ${{ steps.newversion.outputs.NEW_VERSION }}
