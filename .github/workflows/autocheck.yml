@@ -36,4 +36,4 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git fetch --tags
-          git push origin ${{ steps.newversion.outputs.NEW_VERSION }}
+          git push origin ${{ steps.newversion.outputs.NEW_VERSION }} --tags
