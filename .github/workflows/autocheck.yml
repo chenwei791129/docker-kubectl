@@ -8,6 +8,8 @@ on:
 jobs:     
   check-and-tag:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Check new version
         id: newversion
