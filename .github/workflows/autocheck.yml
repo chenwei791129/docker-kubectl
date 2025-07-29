@@ -18,8 +18,8 @@ jobs:
         uses: mukunku/tag-exists-action@v1.1.0
         id: checkexist
         env:
-          #GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.PUSH_PAT }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # GITHUB_TOKEN: ${{ secrets.PUSH_PAT }}
         with: 
           tag: ${{ steps.newversion.outputs.NEW_VERSION }}
       - uses: actions/checkout@v3
@@ -28,3 +28,10 @@ jobs:
         uses: rickstaa/action-create-tag@v1
         with:
           tag: ${{ steps.newversion.outputs.NEW_VERSION }}
+      - name: Push tag to remote
+        if: ${{ steps.checkexist.outputs.exists != 'true' }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git fetch --tags
+          git push origin ${{ steps.newversion.outputs.NEW_VERSION }}
